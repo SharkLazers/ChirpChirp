@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Chirp Chirp - collecting data</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+  <div class='container'>
+  
+    <div class='row'>
+        <div class='col-md-8 col-md-offset-2'>
+            <h1>Help us collecting data!</h1>
+            <img src='img/uk.png' class='pull-left clearfix' height='20px'/> <p>We want to investigate how and where information propagates on Twitter. To do this, we need a lot of data! In particular, we want to reconstruct the structure of the public Italian Twitter accounts. However, Twitter limits the amount of information we can retrieve every hour. Helping us, you will allow us to issue more requests every hour, and therefore to finish as early as possible. Dont' worry! We won't access your account, or any of your personal data, neither we will tweet anything from your account. Thank you! Daniele and Giulio</p>
+            <img src='img/it.png' class='pull-left clearfix' height='20px'/> <p>Vogliamo indagare come e attraverso quali persone le informazioni si propagano su Twitter. Per fare questo, ci servono un sacco di dati! In particolare, vogliamo ricostruire la struttura di tutti gli account Twitter italiani pubblici. Twitter però limita la quantità di informazioni che possiamo recuperare ogni ora. Partecipando, ci permetterai di fare più richieste a Twitter, e di conseguenza di finire prima. Non temere! Non accederemo al tuo account, a nessuno dei tuoi dati personali, e nemmeno twitteremo nulla a tuo nome. Grazie! Daniele e Giulio</p>
+        </div>
+    </div>
+    
+    <br>
+    
+    <div class='row' id='generate-req'>
+        <div class='col-md-8 col-md-offset-2'>
+            <p>Click here to opt in: / Clicca qui per partecipare:</p>
+            <button type="button" class="btn btn-primary btn-lg" id='opted-in'>I'm in!</button>
+        </div>
+    </div>
+    
+    <br>
+    
+    <div class='row hidden' id='show1'>
+        <div class='col-md-8 col-md-offset-2' id='target-link'>
+            <img src='img/uk.png' class='pull-left clearfix' height='20px'/> <p class="text-danger">Click the link to open Twitter. Authorize our application and Twitter will tell you a PIN. Come back here, input the PIN and submit it.</p>
+            <img src='img/it.png' class='pull-left clearfix' height='20px'/> <p class="text-danger">Fai click su link seguente per aprire Twitter. Autorizza la nostra applicazione, Twitter ti mostrerà un PIN. Torna qui ed inseriscilo per completare la procedura.</p>
+        </div>
+    </div>
+    
+    <br>
+    
+    <div class='row hidden' id='show2'>
+        <div class='col-md-8 col-md-offset-2' id='response'>
+            <form id='pinform'>
+                <div class="form-group">
+                    <label for="pin">PIN</label>
+                    <input type="text" class="form-control" id="pin" placeholder="PIN">
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+        </div>
+    </div>
+    
+  </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            var rok = 0
+            var ros = 0
+            $('#opted-in').click(function() {
+                $('#opted-in').html('Wait a moment...');
+                $.ajax({
+                    url: "http://casadidan.noip.me/chirp/token",
+                    success: function( response ) {
+                        response = JSON.parse(response)
+                        rok = response.rok;
+                        ros = response.ros;
+                        url = response.url;
+                        $('#target-link').append('<a href="' + url + '" target="_blank">' + url + '</a>');
+                        $('#show1').removeClass('hidden');
+                        $('#show2').removeClass('hidden');
+                        $('#generate-req').hide();
+                    }
+                });
+            });
+            
+            $('#pinform').submit(function(event) {
+                event.preventDefault();
+                var pin = $('#pin').val();
+                $.ajax({
+                    url: "http://casadidan.noip.me/chirp/pin",
+                    data: { rok: rok, ros: ros, pin: pin},
+                    success: function( response ) {
+                        if (response == 'D A M N S O N') {
+                            alert("There's an error with the PIN, please retry. \n PIN errato, perfavore riprova");
+                        }
+                        else {
+                            $('#response').html("<p>Thank you!</p><p>Grazie mille!</p>");
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+  </body>
+</html> 
